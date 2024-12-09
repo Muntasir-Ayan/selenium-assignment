@@ -16,57 +16,72 @@ def test_currency_filter(url, testcase):
 
     try:
         # Open the URL
+        print(f"Opening URL: {url}")
         driver.get(url)
         driver.maximize_window()
         time.sleep(2)  # Wait for the page to load
 
         # Locate the currency dropdown
+        print("Locating the currency dropdown...")
         currency_dropdown = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "js-currency-sort-footer"))
         )
 
         # Scroll into view and open the dropdown
+        print("Scrolling to the dropdown...")
         driver.execute_script("arguments[0].scrollIntoView(true);", currency_dropdown)
         ActionChains(driver).move_to_element(currency_dropdown).click().perform()
         time.sleep(1)
 
         # Get all currency options
+        print("Getting all currency options...")
         currency_options = driver.find_elements(By.CSS_SELECTOR, "#js-currency-sort-footer .select-ul li")
         if not currency_options:
             result["passed/fail"] = "fail"
             result["comments"] = "No currency options found in the dropdown."
+            print(result["comments"])
             return result
 
         # Test each currency
         for option in currency_options:
             currency_code = option.get_attribute("data-currency-country")
             currency_symbol = option.find_element(By.CSS_SELECTOR, "p").text.strip()
-            
+
+            print(f"Testing currency: {currency_code} - {currency_symbol}")
+
             # Click on the currency option
             try:
                 driver.execute_script("arguments[0].scrollIntoView(true);", option)
                 WebDriverWait(driver, 10).until(EC.element_to_be_clickable(option)).click()
+                print(f"Currency {currency_symbol} selected.")
             except Exception as e:
                 driver.execute_script("arguments[0].click();", option)  # Fallback to JavaScript click
-            
+                print(f"Failed to click currency {currency_symbol} directly, using JavaScript click.")
+
             time.sleep(2)  # Wait for the page to update
 
             # Verify that all property tiles display the selected currency
+            print("Verifying currency in property tiles...")
             property_tiles = driver.find_elements(By.CSS_SELECTOR, ".property-tile-price")
             all_tiles_correct = all(currency_symbol in tile.text for tile in property_tiles)
 
             if not all_tiles_correct:
                 result["passed/fail"] = "fail"
                 result["comments"] = f"Currency {currency_symbol} mismatch found in property tiles."
+                print(result["comments"])
                 return result
-        
+
+            print(f"Currency {currency_symbol} passed.")
+
         # If all currency options passed
         result["passed/fail"] = "passed"
         result["comments"] = "All currencies displayed correctly in property tiles."
+        print("Currency filter test passed.")
 
     except Exception as e:
         result["passed/fail"] = "fail"
         result["comments"] = str(e)
+        print(f"Test failed: {str(e)}")
 
     finally:
         # Close the driver after use
