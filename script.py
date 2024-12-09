@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import json
 import pandas as pd
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
@@ -17,18 +17,14 @@ def extract_data_from_script(driver):
         print("No ScriptData found")
         return None
     
-    # Print the entire ScriptData object to inspect the structure
-    # print("Full ScriptData:", script_data)  # Debugging line to print the full object
-    
     # Extract the required fields from the ScriptData object
     data = {
-        # "SiteURL": script_data.get("SiteUrl", ""),
         "SiteURL": script_data.get("config", {}).get("SiteUrl", "N/A"),
         "CampaignID": script_data.get("pageData", {}).get("CampaignId", "N/A"),
         "SiteName": script_data.get("config", {}).get("SiteName", ""),
         "Browser": driver.capabilities.get('browserName', 'N/A'),  # Browser info from WebDriver capabilities
         "CountryCode": script_data.get("userInfo", {}).get("CountryCode", ""),
-        "CountryCode": script_data.get("userInfo", {}).get("IP", ""), # IP extraction can be done via an API like ipinfo.io if required
+        "IP": script_data.get("userInfo", {}).get("IP", "N/A")  # IP extraction if available
     }
     
     # Printing the extracted data for debugging purposes
@@ -37,15 +33,37 @@ def extract_data_from_script(driver):
     return data
 
 
-# Function to save data to Excel
+# Function to save data to Excel (overwrite existing sheet or create a new one)
 def save_to_excel(data, filename):
-    # Convert data to a pandas DataFrame
-    df = pd.DataFrame([data])
-    
-    # Write the DataFrame to an Excel file
     try:
-        with pd.ExcelWriter(filename, engine='openpyxl', mode='a') as writer:
-            df.to_excel(writer, sheet_name='Scraped Data', index=False)
+        # Check if the file exists
+        try:
+            # Try to load the existing workbook
+            workbook = load_workbook(filename)
+            print("Workbook loaded successfully.")
+        except FileNotFoundError:
+            # If file doesn't exist, create a new workbook
+            workbook = Workbook()
+            print("New workbook created.")
+
+        # Check if the sheet exists
+        if "Scraped Data" in workbook.sheetnames:
+            worksheet = workbook["Scraped Data"]
+            print("Sheet 'Scraped Data' found. Overwriting it.")
+        else:
+            # If the sheet does not exist, create it
+            worksheet = workbook.create_sheet("Scraped Data")
+            print("Sheet 'Scraped Data' created.")
+
+        # If the sheet is empty, add headers
+        if worksheet.max_row == 1:
+            worksheet.append(["SiteURL", "CampaignID", "SiteName", "Browser", "CountryCode", "IP"])
+
+        # Add the data to the sheet
+        worksheet.append([data["SiteURL"], data["CampaignID"], data["SiteName"], data["Browser"], data["CountryCode"], data["IP"]])
+
+        # Save the workbook
+        workbook.save(filename)
         print("Data saved to Excel successfully!")
     except Exception as e:
         print(f"Error saving to Excel: {e}")
