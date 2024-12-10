@@ -13,22 +13,22 @@ def run_script(script_name):
 
 def main():
     print("H1 testing is running....")
-    run_script('h1Test.py')
+    run_script('h1_test.py')
 
     print("HTML testing is running....")
-    run_script('htmlTest.py')
+    run_script('html_test.py')
 
     print("alt testing is running....")
-    run_script('altTest.py')
+    run_script('alt_test.py')
 
     print("url testing is running....")
     run_script('url_status_code_test.py')
 
     print("Currency testing is running....")
-    run_script('currency.py')
+    run_script('currency_test.py')
 
     print("Script testing is running....")
-    run_script('script.py')
+    run_script('scrape_test.py')
 
     print("Running successful.")
 
