@@ -50,8 +50,14 @@ try:
         # Wait for the page to update
         time.sleep(3)  # Adjust based on the site's responsiveness
 
-        # Verify if the property tiles reflect the selected currency
-        # Implement the verification logic here (refer to earlier example)
+        # Locate the default price element
+        default_price_element = driver.find_element(By.ID, "js-default-price")
+        
+        # Extract the text from the default price element
+        default_price_text = default_price_element.text
+        print(f"Current default price: {default_price_text}")
+
+        # Optionally, you could implement additional logic to verify if the currency reflects correctly
 
 finally:
     # Close the browser
