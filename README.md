@@ -35,8 +35,8 @@ Before getting started, ensure the following tools are installed on your system:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Muntasir-Ayan/Hotel-Api-Flask-Assignment-5.git
-   cd Hotel-Api-Flask-Assignment-5
+   git clone https://github.com/Muntasir-Ayan/selenium-assignment.git
+   cd selenium-assignment
 
 
 2. **Create and activate a virtual environment**:
