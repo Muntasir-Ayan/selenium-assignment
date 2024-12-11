@@ -57,7 +57,7 @@ try:
         currency_symbol = li_text.split()[0]  # Extract the currency symbol (e.g., "$", "£", "€")
         print(f"Clicking on: {li_text.strip()}")
 
-        print(f'----{currency_symbol}----')
+        # print(f'----{currency_symbol}----')
 
         # Click the currency option using JavaScript to avoid interactability issues
         driver.execute_script("arguments[0].click();", li_elements[i])
